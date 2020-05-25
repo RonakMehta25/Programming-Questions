@@ -1,0 +1,8 @@
+KMP Algorithm
+
+This algorithm is used to find continuous pattern in a string.
+
+Normal Algorithm would compare every combination and result in time complexity=O(m*n)
+
+The optimization by KMP is that we create prefix array.
+

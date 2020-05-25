@@ -1,0 +1,271 @@
+27/10/2019
+
+Interesting problem on leetcode was as follows:-
+
+There are n items each belonging to zero or one of m groups where group[i] is the group that the i-th item belongs to and it's equal to -1 if the i-th item belongs to no group. The items and the groups are zero indexed. A group can have no item belonging to it.
+
+Return a sorted list of the items such that:
+
+The items that belong to the same group are next to each other in the sorted list.
+There are some relations between these items where beforeItems[i] is a list containing all the items that should come before the i-th item in the sorted array (to the left of the i-th item).
+Return any solution if there is more than one solution and return an empty list if there is no solution.
+
+This solution would require Topological Sorting.
+
+Topological Sorting
+
+This is one of the algorithm to sort data according the the dependency. For example A->B->C then the output should be C,B,A
+
+Implementation :-
+
+Topological sort is done using depth first search. It uses stack and set.Stack contains the sorted elements and set contains visited elements.
+
+We start from any element and then explore the childs of it if it is not in the visited set. After the examination of the childs . we put that element into the visted set and start from any other element.
+
+Examples where Topological sorting is used :-
+
+It is used in dependency management in system build.
+
+
+class Node{
+    int val;
+    List<Integer> depVal;
+    Node(int v,List<Integer> d)
+    {
+        val=v;
+        depVal=d;
+    }
+}
+
+class gNode
+{
+    int val;
+    List<gNode> depVal;
+    gNode(int v,List<gNode> d)
+    {
+        val=v;
+        depVal=d;
+    }
+    gNode(int v)
+    {
+        val=v;
+    }
+}
+class Solution {
+    HashMap<Integer,List<Node>> itemGroupMap;
+    HashMap<Integer,List<Integer>> groupDep;
+    HashMap<Integer,List<Integer>> itemSGroup;
+    public int[] sortItems(int n, int m, int[] group, List<List<Integer>> beforeItems) {
+        createItemGroup(group,beforeItems);
+        
+        //printList();
+        //printMapList();
+        itemSGroup=new HashMap<Integer,List<Integer>>();
+        for(Map.Entry<Integer,List<Node>> mp:itemGroupMap.entrySet())
+        {
+            //System.out.println("mp.getKey()="+mp.getKey());
+            //System.out.println("mp.getValue()="+mp.getValue());
+            //System.out.println("Values="+topSortNode(mp.getValue()));
+            List<Integer> tmpResult=topSortNode(mp.getValue());
+            if(tmpResult.size()==0)
+            {
+                return new int[0];
+            }
+            itemSGroup.put(mp.getKey(),tmpResult);
+        }
+        
+        //System.out.println("Groups="+topSortGroup(getGNode()));
+        int[] result=new int[n];
+        int k=0;
+        for(Integer i:topSortGroup(getGNode()))
+        {
+            for(Integer j:itemSGroup.get(i))
+            {
+                result[k]=j;
+                k++;
+            }
+        }
+        return result;
+    }
+    
+    void printMapList()
+    {
+        System.out.println("Item Dependencies");
+        for(Map.Entry<Integer,List<Node>> gmap:itemGroupMap.entrySet())
+        {
+            System.out.println("For group "+ gmap.getKey());
+            for(Node lt : gmap.getValue())
+            {
+                System.out.print("   "+lt.val+" -> "+lt.depVal);
+            }
+        }
+    }
+    
+    void printList()
+    {
+        System.out.println("Group Dependencies");
+        for(Map.Entry<Integer,List<Integer>> gd:groupDep.entrySet())
+        {
+            System.out.println("For group"+gd.getKey());
+            for(Integer i:gd.getValue())
+            {
+                System.out.print("   "+i);
+            }
+        }
+    }
+    
+    void createItemGroup(int[] group, List<List<Integer>> beforeItems)
+    {
+        itemGroupMap=new HashMap<Integer,List<Node>>();
+        groupDep=new HashMap<Integer,List<Integer>>();
+        int i=0;
+        for(List<Integer> lt:beforeItems)
+        {
+            List<Integer> sameDependency=new ArrayList<Integer>();
+            for(Integer item:lt)
+            {
+                List<Integer> gd1=new ArrayList<Integer>();
+                groupDep.put(group[i],gd1);
+                if(group[item]==group[i])
+                {
+                    sameDependency.add(item);
+                }
+                else
+                {
+                    if(groupDep.containsKey(group[i]))
+                    {
+                        List<Integer> gd=groupDep.get(group[i]);
+                        gd.add(group[item]);
+                        groupDep.put(group[i],gd);
+                    }
+                    else
+                    {
+                        List<Integer> gd=new ArrayList<Integer>();
+                        gd.add(group[item]);
+                        groupDep.put(group[i],gd);
+                    }
+                }
+            }
+            Node nd=new Node(i,sameDependency);
+            if(itemGroupMap.containsKey(group[i]))
+            {
+                List<Node> depNode=itemGroupMap.get(group[i]);
+                depNode.add(nd);
+                itemGroupMap.put(group[i],depNode);
+            }
+            else
+            {
+                List<Node> ns=new ArrayList<Node>();
+                ns.add(nd);
+                itemGroupMap.put(group[i],ns);
+            }
+            
+            i++;
+        }
+    }
+    
+    List<Integer> topSortNode(List<Node> vertices)
+    {
+        Set<Integer> visited=new HashSet<Integer>();
+        List<Integer> result=new  ArrayList<Integer>();
+        Set<Integer> resultSet=new HashSet<Integer>();
+        List<gNode> gVertices=getGNode(vertices);
+        for(gNode n:gVertices)
+        {
+            if(visited.contains(n.val))
+            {
+                if(!resultSet.contains(n.val))
+                {
+                    return new ArrayList<Integer>();
+                }
+                continue;
+            }
+            if(!topSortUtil(result,n,visited,resultSet))
+            {
+                return new ArrayList<Integer>();
+            }
+        }
+        return result;
+    }
+    List<Integer> topSortGroup(List<gNode> vertices)
+    {
+        Set<Integer> resultSet=new HashSet<Integer>();
+        Set<Integer> visited=new HashSet<Integer>();
+        List<Integer> result=new  ArrayList<Integer>();
+        for(gNode n:vertices)
+        {
+            if(visited.contains(n.val)) continue;
+            topSortUtil(result,n,visited,resultSet);
+        }
+        return result;
+    }
+    boolean topSortUtil(List<Integer> result,gNode n,Set<Integer> visited,Set<Integer> resultSet)
+    {
+        visited.add(n.val);
+        //System.out.println("depVal="+n.depVal+",size="+n.depVal.size());
+        for(gNode i:n.depVal)
+        {
+            if(visited.contains(i.val))
+            {
+                if(!resultSet.contains(i.val))
+                {
+                    return false;
+                }
+                continue;
+            }
+            topSortUtil(result,i,visited,resultSet);
+        }
+        resultSet.add(n.val);
+        result.add(n.val);
+        return true;
+    }
+    
+    List<gNode> getGNode(List<Node> vertices)
+    {
+        Map<Integer,gNode> mp=new HashMap<Integer,gNode>();
+        List<gNode> result=new ArrayList<gNode>();
+        
+        for(Node n:vertices)
+        {
+            gNode gN=new gNode(n.val);
+            mp.put(n.val,gN);
+        }
+        
+        for(Node n:vertices)
+        {
+            gNode gN=mp.get(n.val);
+            List<gNode> gNeig=new ArrayList<gNode>();
+            for(Integer i:n.depVal)
+            {
+                gNeig.add(mp.get(i));
+            }
+            gN.depVal=gNeig;
+            result.add(gN);
+        }
+        return result;
+    }
+    List<gNode> getGNode()
+    {
+        Map<Integer,gNode> map=new HashMap<Integer,gNode>();
+        List<gNode> result=new ArrayList<gNode>();
+        
+        for(Map.Entry<Integer,List<Integer>> mp:groupDep.entrySet())
+        {
+            gNode gN=new gNode(mp.getKey());
+            map.put(mp.getKey(),gN);
+        }
+        
+        for(Map.Entry<Integer,List<Integer>> mp:groupDep.entrySet())
+        {
+            gNode gN=map.get(mp.getKey());
+            List<gNode> gNeig=new ArrayList<gNode>();
+            for(Integer i:mp.getValue())
+            {
+                gNeig.add(map.get(i));
+            }
+            gN.depVal=gNeig;
+            result.add(gN);
+        }
+        return result;
+    }
+}

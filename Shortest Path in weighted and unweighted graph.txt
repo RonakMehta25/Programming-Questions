@@ -1,0 +1,25 @@
+Shortest Path in weighted and unweighted graph
+
+For shortest path in unweighted directed or undirected graph,we can use breadth first search to find min cost path to every node.
+
+In case of weighted graph, we can use dijkstra's algorithm
+
+In Dikstra's algorithm, we use data structure of Heap-Map
+
+Following is Pseudo code, Basically ,we use Heap-Map to store connection node and always pop the least path node and compare travelling to it's unvisited connection using it's path.
+
+We can use BinaryMinHeap for this data structure
+
+heap.put(0,graph[0])
+dist[0]=0
+while(heap not empty)
+{
+	node curr=heap.getMinWeight()
+	visited[curr]=1;
+	for(all Node of curr which are not visited )
+	{
+		if(curr.weight+path weight < connNode.weight){
+			heap.put(connNode,curr.weight+path.weight)
+		}
+	}
+}

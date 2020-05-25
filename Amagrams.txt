@@ -1,0 +1,80 @@
+// if 2 strings are anagrams, then each letter and their frequency should Match. I have used this concept to create 2 frequency array for both string. After calculating frequency of every letter,I just compare both frequency array, if both exactly match then it is anagrams otherwise it is not. 
+
+// Using Java
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if(s.length()!=t.length()) return false;
+        int n=s.length();
+        int[] alphabets=new int[26];
+        for(int i=0;i<n;i++)
+        {
+            alphabets[s.charAt(i)-'a']++;
+            alphabets[t.charAt(i)-'a']--;
+        }
+        
+        for(int i=0;i<26;i++)
+        {
+            if(alphabets[i]!=0)
+            {
+                return false;    
+            }
+            
+        }
+        
+        return true;
+    }
+}
+
+--------------------
+
+SELECT PRODUCT_NAME
+FROM
+(
+SELECT P.PRODUCT_NAME, 
+       S.QUANTITY -
+       LEAD(S.QUANTITY,1,0) OVER (
+                            PARTITION BY P.PRODUCT_ID 
+                            ORDER BY S.YEAR DESC
+                            ) QUAN_DIFF
+FROM   PRODUCTS P,
+       SALES S
+WHERE  P.PRODUCT_ID = S.PRODUCT_ID
+)A
+GROUP BY PRODUCT_NAME
+HAVING MIN(QUAN_DIFF) >= 0;
+
+----------------------
+
+https://www.folkstalk.com/2011/12/sql-queries-interview-questions-oracle.html
+
+----------------------
+
+set @rn=1;
+select groupins ,min(sequence),max(sequence) from (select groupins,sequence,case when sequence!=(previous_sequence+1) then @rn:=@rn+1 else @rn end as diff_groups from (select groupins,sequence,lag(sequence) over(order by groupins,sequence) as previous_sequence from sequence_table) tmp) tmp2 group by diff_groups;
+
+
+-------------------------
+
+select S1.name,S1.total_marks,S1.year,S2.total_marks from students S1 join students S2 on S1.name=S2.name and S1.year=S2.year+1 and S1.total_marks>=S2.total_marks;
+
+----------------------
+
+select S.sales_date,sum(S.sales_amount*E.exchange_rate) 
+from sales_table S left join exchange_rate_table E 
+on S.currency=E.source_currency where str_to_date(E.effective_start_date,"%d-%b-%y")=(select 
+max(str_to_date(E1.effective_start_date,"%d-%b-%y")) from exchange_rate_table E1 
+where E1.source_currency=S.currency and 
+str_to_date(E1.effective_start_date,"%d-%b-%y")<=str_to_date(S.sales_date,"%d-%b-%y")  
+group by E1.source_currency) group by sales_date order by S.sales_date;
+
+------------------------
+
+select product_id,product_group from (select sum(sales_amount)-lead(sales_amount) over(partition by product_id,product_group order by year(sales_date)) as diff_sales,year(sales_date),product_id,product_group from product_sales_table group by year(sales_date),product_id,product_group) tmp group by product_id,product_group having min(diff_sales)>=0;
+
+
+------------------------
+
+
+https://www.red-gate.com/simple-talk/sql/t-sql-programming/the-sql-of-gaps-and-islands-in-sequences/
+
+https://www.red-gate.com/simple-talk/sql/t-sql-programming/introduction-to-gaps-and-islands-analysis/

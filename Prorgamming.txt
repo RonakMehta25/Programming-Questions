@@ -1,0 +1,19 @@
+
+
+Experience and stories 
+
+1. Created entire system from scratch by myself with design
+
+2. Took KT and took ownership and resolved the original process
+
+3. Optimized the process to complete the work in desired time
+
+
+
+Programming Questions I solved
+
+1. Given a matrix of positive integers/points. We have to start from lower left corner and reach the upper right corner. Our path should be such that we fetch maximum points. Only two movements are allowed- up and right, i.e. from a cell (R, C), you can either go to (R, C+1) or (R-1, C).
+
+2. Write a function detectAndRemoveLoop() that checks whether a given Linked List contains loop and if loop is present then removes the loop and returns true. And if the list doesn’t contain loop then returns false. Below diagram shows a linked list with a loop. detectAndRemoveLoop() must change the below list to 1->2->3->4->5->NULL. (Flyod Cycle Detection)
+
+3.Given a binary string, that is it contains only 0s and 1s. We need to make this string a sequence of alternate characters by flipping some of the bits, our goal is to minimize the number of bits to be flipped.
